@@ -1,14 +1,13 @@
 <?php
 
-namespace GeneralPurposeIO\UART\Factory;
+namespace GeneralPurposeIO\UART;
 
 use GeneralPurposeIO\Contracts\UART\DataBits;
 use GeneralPurposeIO\Contracts\UART\FlowControl;
 use GeneralPurposeIO\Contracts\UART\Parity;
 use GeneralPurposeIO\Contracts\UART\StopBits;
-use GeneralPurposeIO\Contracts\UART\UARTDriver;
 
-abstract class UARTFactory
+abstract class UARTConnectionFactory
 {
     public int $baud_rate = 9_600;
 
@@ -20,9 +19,13 @@ abstract class UARTFactory
 
     public FlowControl $flow_control = FlowControl::NONE;
 
-    abstract protected function assertReady(): void;
+    public function __construct(
+        public string $device,
+        protected UARTConnectionDriver $driver
+    ) {}
 
-    abstract public function driver(): UARTDriver;
+    abstract protected function device(): mixed;
+    abstract protected function getHandle(): mixed;
 
     public function baud(int $value): static
     {
@@ -57,5 +60,10 @@ abstract class UARTFactory
         $this->flow_control = is_int($value) ? FlowControl::from($value) : $value;
 
         return $this;
+    }
+
+    public function register(): UARTConnectionDriver
+    {
+        return $this->driver->register($this->device, $this->getHandle());
     }
 }
