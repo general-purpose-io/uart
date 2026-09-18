@@ -2,35 +2,19 @@
 
 namespace GeneralPurposeIO\UART;
 
-use Fabricate\Chassis\Exceptions\CircularDependencyException;
-use Fabricate\Contracts\Core\Program;
-use Fabricate\NutsAndBolts\ServiceProvider;
-use GeneralPurposeIO\Core\MagicAliases\GPIO;
-use Fabricate\NutsAndBolts\Contracts\DeferrableProvider;
+use Voyager\Contracts\Vessel\Vessel;
+use Voyager\NutsAndBolts\ServiceProvider;
 
-class UARTServiceProvider extends ServiceProvider implements DeferrableProvider
+class UARTServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->container->singleton('gpio.uart', fn(Program $program) => new UARTAdapterManager($program));
-        $this->container->alias('gpio.uart', UARTAdapterManager::class);
+        $this->app->singleton('gpio.uart', fn (Vessel $app) => new UARTConnectionManager($app));
+        $this->app->alias('gpio.uart', UARTConnectionManager::class);
     }
 
-    /**
-     * @throws CircularDependencyException
-     */
     public function boot(): void
     {
-        $adapters = config('gpio.protocols.uart.adapters');
-        foreach ($adapters as $adapter => $adapter_class) {
-            UART::extend($adapter, fn() => new $adapter_class());
-        }
 
-        GPIO::extend('uart', fn() => app('gpio.uart'));
-    }
-
-    public function provides(): array
-    {
-        return ['gpio.uart'];
     }
 }

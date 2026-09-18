@@ -2,12 +2,11 @@
 
 namespace GeneralPurposeIO\UART;
 
-use Fabricate\MagicAliases\MagicAlias;
-use GeneralPurposeIO\Contracts\UART\UARTCommunicationAdapter as CommunicationAdapter;
+use Voyager\MagicAliases\MagicAlias;
 
 /**
  * @method static void extend(string $name, callable $callback)
- * @method static CommunicationAdapter adapter(string $name)
+ * @method static UARTConnectionDriver driver(?string $name = null)
  */
 class UART extends MagicAlias
 {
