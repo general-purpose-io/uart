@@ -3,7 +3,6 @@
 namespace GeneralPurposeIO\UART;
 
 use GeneralPurposeIO\Contracts\UART\UARTException;
-use GeneralPurposeIO\Contracts\UART\UARTTransport;
 
 /** The driver an app gets when no adapter package is configured: every open attempt says so. */
 class NoneUARTConnectionDriver extends UARTConnectionDriver
@@ -17,4 +16,7 @@ class NoneUARTConnectionDriver extends UARTConnectionDriver
     {
         throw UARTException::noDriverConfigured();
     }
+
+    /** newConnection() never succeeds, so there is never a handle to close. */
+    protected function closeConnection(mixed $handle): void {}
 }
