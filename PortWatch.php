@@ -5,10 +5,11 @@ namespace GeneralPurposeIO\UART;
 use Closure;
 use GeneralPurposeIO\Contracts\UART\UARTReceived;
 use Voyager\Contracts\IOPools\Pumpable;
-use Voyager\Contracts\IOPools\StreamWatchable;
+use Voyager\IOPools\Resources\WakeSource;
+use Voyager\IOPools\Waiter\Wakes\Readable;
 
-/** What a port registers on the loop: its intake stream to select on, a tick that collects, and the mail it posts. */
-final class PortWatch implements StreamWatchable, Pumpable
+/** What a port registers on the loop: a readable wake on its intake stream, a collect when it fires, and the mail it posts. */
+final class PortWatch extends WakeSource implements Pumpable
 {
     /** @var list<UARTReceived> */
     private array $mail = [];
@@ -18,21 +19,21 @@ final class PortWatch implements StreamWatchable, Pumpable
         private readonly Closure $collect,
     ) {}
 
+    public function wakes(): array
+    {
+        return array_map(fn (mixed $stream): Readable => new Readable($stream), ($this->streams)());
+    }
+
+    public function woke(array $fired): void
+    {
+        ($this->collect)();
+    }
+
     public function pump(): array
     {
         [$mail, $this->mail] = [$this->mail, []];
 
         return $mail;
-    }
-
-    public function streams(): array
-    {
-        return ($this->streams)();
-    }
-
-    public function tick(): void
-    {
-        ($this->collect)();
     }
 
     public function post(UARTReceived $received): void

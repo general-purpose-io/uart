@@ -7,7 +7,7 @@ use GeneralPurposeIO\Contracts\UART\UARTException;
 use GeneralPurposeIO\Contracts\UART\UARTReceived;
 use GeneralPurposeIO\Contracts\UART\UARTTransport as TransportContract;
 use Voyager\Contracts\IOPools\Loop;
-use Voyager\Contracts\IOPools\LoopTimer;
+use Voyager\Contracts\IOPools\LoopResources\Timer;
 
 /**
  * One serial port. Every byte the adapter hands over lands in one unread buffer: read(), readUntil() and pollBytes()
@@ -45,7 +45,7 @@ abstract class UARTTransport implements TransportContract
 
     private ?Loop $registered_on = null;
 
-    private ?LoopTimer $sampler = null;
+    private ?Timer $sampler = null;
 
     private readonly PortWatch $watch;
 
@@ -352,6 +352,7 @@ abstract class UARTTransport implements TransportContract
             }
 
             $this->sampler?->cancel();
+            $this->registered_on->forget($this->samplerName());
             $this->registered_on->forget($this->name());
             [$this->registered_on, $this->sampler] = [null, null];
 
@@ -366,7 +367,13 @@ abstract class UARTTransport implements TransportContract
         $this->registered_on->resource($this->name(), $this->watch);
 
         $interval = $this->samplingInterval();
-        $this->sampler = is_null($interval) ? null : $this->registered_on->every($interval, fn () => $this->intake(), $this->name());
+        $this->sampler = is_null($interval) ? null : $this->registered_on->every($interval, fn () => $this->intake(), $this->samplerName());
+    }
+
+    /** The sampler's own loop name: a timer filed under the port's name would replace its watch. */
+    private function samplerName(): string
+    {
+        return $this->name().'.sampler';
     }
 
     /** How long TX_CHUNK bytes take on the wire at 10 bits a byte, between 1 ms and 100 ms: the pace a loop polls for room at. */

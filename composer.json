@@ -23,15 +23,16 @@
     ],
     "require": {
         "php": "^8.4|^8.5|^8.6",
-        "gpio/contracts": "^0.9.0",
-        "gpio/nuts-and-bolts": "^0.9.0",
-        "venusian-voyager/collections": "^0.9.0",
-        "venusian-voyager/contracts": "^0.9.0",
-        "venusian-voyager/nuts-and-bolts": "^0.9.0"
+        "gpio/contracts": "^0.10.0",
+        "gpio/nuts-and-bolts": "^0.10.0",
+        "venusian-voyager/collections": "^0.10.0",
+        "venusian-voyager/contracts": "^0.10.0",
+        "venusian-voyager/io-pools": "^0.10.0",
+        "venusian-voyager/nuts-and-bolts": "^0.10.0"
     },
     "suggest": {
-        "microscrap/scrapyard-linux": "^0.9.0 - native termios ports",
-        "microscrap/scrapyard-usb": "^0.9.0 - FTDI UART"
+        "microscrap/scrapyard-linux": "^0.10.0 - native termios ports",
+        "microscrap/scrapyard-usb": "^0.10.0 - FTDI UART"
     },
     "autoload": {
         "psr-4": {
@@ -45,10 +46,7 @@
         "venusian": {
             "providers": [
                 "GeneralPurposeIO\\UART\\UARTServiceProvider"
-            ],
-            "aliases": {
-                "UART": "GeneralPurposeIO\\UART\\UART"
-            }
+            ]
         }
     },
     "config": {
